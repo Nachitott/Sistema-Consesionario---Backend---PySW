@@ -1,4 +1,4 @@
-const Cliente = require('../models/cliente.model');
+const { Cliente } = require('../../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
