@@ -1,12 +1,15 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const sequelize = require('./config/database');
+const { sequelize } = require('./config/database');
 var app = express();
+
+
 //middlewares
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:4200' }));
 //Cargamos el modulo de direccionamiento de rutas
+app.use('/api/vehiculo', require('./src/routes/vehiculo.route'));
 app.use('/api/cliente', require('./src/route/cliente.route'));
 //app.use('/api/sector', require('./src/routes/sector.route'));
 //setting
