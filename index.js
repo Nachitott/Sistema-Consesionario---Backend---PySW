@@ -1,13 +1,14 @@
 const express = require('express');
 const cors = require('cors');
-const sequelize = require('./config/database');
+const { sequelize } = require('./config/database');
 var app = express();
+
+
 //middlewares
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:4200' }));
 //Cargamos el modulo de direccionamiento de rutas
-//app.use('/api/agente', require('./src/routes/agente.route.js'));
-//app.use('/api/sector', require('./src/routes/sector.route'));
+app.use('/api/vehiculo', require('./src/routes/vehiculo.route'));
 //setting
 app.set('port', process.env.PORT || 3000);
 // Sincronizar Base de Datos y arrancar el servidor
