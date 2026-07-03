@@ -13,6 +13,7 @@ app.use('/api/vehiculo', require('./src/routes/vehiculo.route'));
 app.use('/api/cliente', require('./src/routes/cliente.route'));
 app.use('/api/vendedor', require('./src/routes/vendedor.route'));
 //app.use('/api/sector', require('./src/routes/sector.route'));
+app.use('/api/venta', require('./src/routes/venta.route'));
 //setting
 app.set('port', process.env.PORT || 3000);
 // Sincronizar Base de Datos y arrancar el servidor
