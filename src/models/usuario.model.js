@@ -1,5 +1,4 @@
 const { DataTypes } = require('sequelize');
-
 module.exports = (sequelize) => {
     const Usuario = sequelize.define('Usuario', {
 // Sequelize crea un campo 'id' autoincrementable automáticamente, no hace falta ponerlo

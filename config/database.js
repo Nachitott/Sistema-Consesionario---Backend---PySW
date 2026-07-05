@@ -9,8 +9,17 @@ const sequelize = new Sequelize('concesionariodb', 'postgres', 'admin123', {
 const Vehiculo = require('../src/models/vehiculo.model')(sequelize);
 const Usuario = require('../src/models/usuario.model')(sequelize);
 const Venta = require('../src/models/venta.model')(sequelize);
+const Reserva = require('../src/models/reserva.model')(sequelize);
 
 // Definición de Relaciones / Asociaciones
+
+// Un Cliente tiene muchas Reservas, una Reserva pertenece a un Cliente
+Usuario.hasMany(Reserva, { foreignKey: 'clienteId', as: 'reservas' });
+Reserva.belongsTo(Usuario, { foreignKey: 'clienteId', as: 'cliente' });
+
+// Un Vehículo puede tener muchas Reservas (historial de reservas), una Reserva pertenece a un Vehículo
+Vehiculo.hasMany(Reserva, { foreignKey: 'vehiculoId', as: 'reservas' });
+Reserva.belongsTo(Vehiculo, { foreignKey: 'vehiculoId', as: 'vehiculo' });
 
 // Un Usuario tiene muchas Ventas, una Venta pertenece a un Usuario
 Venta.belongsTo(Usuario, {
@@ -46,4 +55,5 @@ module.exports = {
     Vehiculo,
     Usuario,
     Venta,
+    Reserva
 };

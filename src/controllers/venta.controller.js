@@ -101,6 +101,17 @@ ventaCtrl.createVenta = async (req, res) => {
         const descuento = vehiculo.descuento;
         const precioFinal = Number((precioOriginal * (1 - descuento / 100)).toFixed(2));
 
+        // Validar si el auto ya está vendido
+        if (vehiculo.estado === 'vendido') {
+            return res.status(400).json({ status: '0', msg: 'El vehículo ya ha sido vendido.' });
+        }
+
+        // Validar que el vehículo esté disponible
+        if (vehiculo.estado !== 'disponible') {
+            return res.status(400).json({ status: '0', msg: 'El vehículo no está disponible para reserva (puede estar reservado o inactivo).' });
+        }
+
+
         // Sequelize usa .create() para instanciar y guardar en un solo paso
         await Venta.create({
             clienteId: cliente.id,
