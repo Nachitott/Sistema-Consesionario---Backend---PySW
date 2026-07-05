@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('./../../config/database'); // Asegúrate de que la ruta apunte a tu archivo
-const Vendedor = sequelize.define('Vendedor', {
+
+module.exports = (sequelize) => {
+    const Usuario = sequelize.define('Usuario', {
 // Sequelize crea un campo 'id' autoincrementable automáticamente, no hace falta ponerlo
     username: {type: DataTypes.STRING, allowNull: false},
     password: {type: DataTypes.STRING, allowNull: false},
@@ -9,11 +10,17 @@ const Vendedor = sequelize.define('Vendedor', {
     dni: {type: DataTypes.STRING, allowNull: true},
     email: {type: DataTypes.STRING, allowNull: false},
     telefono: {type: DataTypes.STRING, allowNull: true},
-    fechaIngreso: {type: DataTypes.STRING, allowNull: true},
+    direccion: {type: DataTypes.STRING, allowNull: true},
+    ciudad: {type: DataTypes.STRING, allowNull: true},
+    provincia: {type: DataTypes.STRING, allowNull: true},
+    fechaNacimiento: {type: DataTypes.STRING, allowNull: true},
+    fechaIngreso: {type: DataTypes.STRING, allowNull: true, defaultValue: DataTypes.NOW},
+    rol: {type: DataTypes.ENUM('cliente', 'vendedor', 'admin'), allowNull: false, defaultValue: 'cliente'},
     observaciones: {type: DataTypes.TEXT, allowNull: true}
-}, {
-    tableName: 'vendedores', // Nombre de la tabla en minúsculas y plural
+    }, {
+    tableName: 'usuarios', // Nombre de la tabla en minúsculas y plural
     timestamps: true, // Crea automáticamente los campos createdAt y updatedAt
-});
+    });
 
-module.exports = Vendedor;
+    return Usuario;
+}
