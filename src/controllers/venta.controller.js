@@ -127,6 +127,7 @@ ventaCtrl.createVenta = async (req, res) => {
             precioFinal
         });
         await vehiculo.update({
+            estado: 'vendido',
             visible: false
         });
         res.json({ status: '1', msg: 'Venta guardada.' });
