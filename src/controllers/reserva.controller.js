@@ -1,4 +1,4 @@
-const { Reserva, Vehiculo, Cliente } = require('../../config/database');
+const { Reserva, Vehiculo, Usuario } = require('../../config/database');
 const { Op } = require('sequelize');
 
 const reservaCtrl = {};
@@ -8,7 +8,7 @@ reservaCtrl.getReservas = async (req, res) => {
     try {
         const reservas = await Reserva.findAll({
             include: [
-                { model: Cliente, as: 'cliente', attributes: ['id', 'nombre', 'apellido', 'email'] },
+                { model: Usuario, as: 'cliente', attributes: ['id', 'nombre', 'apellido', 'email'] },
                 { model: Vehiculo, as: 'vehiculo', attributes: ['id', 'marca', 'modelo', 'anio', 'precio', 'estado'] }
             ]
         });
@@ -24,7 +24,7 @@ reservaCtrl.getReserva = async (req, res) => {
         const { id } = req.params;
         const reserva = await Reserva.findByPk(id, {
             include: [
-                { model: Cliente, as: 'cliente', attributes: ['id', 'nombre', 'apellido', 'email'] },
+                { model: Usuario, as: 'cliente', attributes: ['id', 'nombre', 'apellido', 'email'] },
                 { model: Vehiculo, as: 'vehiculo', attributes: ['id', 'marca', 'modelo', 'anio', 'precio', 'estado'] }
             ]
         });
@@ -48,7 +48,7 @@ reservaCtrl.createReserva = async (req, res) => {
         }
 
         // Verificar que el cliente existe
-        const cliente = await Cliente.findByPk(clienteId);
+        const cliente = await Usuario.findByPk(clienteId);
         if (!cliente) {
             return res.status(404).json({ status: '0', msg: 'Cliente no encontrado.' });
         }
