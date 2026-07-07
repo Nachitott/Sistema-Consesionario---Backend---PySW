@@ -1,33 +1,40 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config(); // Aseguramos que lea el archivo .env
 
-let sequelize;
+const sequelize = new Sequelize('concesionariodb', 'postgres', 'Ignacio2006', {
+    host: 'localhost',
+    dialect: 'postgres',
+    logging: false,
+});
 
-// Si existe la URL de Supabase, conecta a internet con SSL
-if (process.env.DATABASE_URL) {
-    sequelize = new Sequelize(process.env.DATABASE_URL, {
-        dialect: 'postgres',
-        logging: false,
-        dialectOptions: {
-            ssl: {
-                require: true,
-                rejectUnauthorized: false
-            }
-        }
-    });
-} else {
-    // Si no está, usa los datos locales que ya tenían configurados
-    sequelize = new Sequelize(
-        process.env.DB_NAME || 'concesionariodb',
-        process.env.DB_USER || 'postgres',
-        process.env.DB_PASSWORD || 'admin123',
-        {
-            host: process.env.DB_HOST || 'localhost',
-            dialect: 'postgres',
-            logging: false,
-        }
-    );
-}
+// DPS AÑADIR
+// let sequelize;
+
+// // Si existe la URL de Supabase, conecta a internet con SSL
+// if (process.env.DATABASE_URL) {
+//     sequelize = new Sequelize(process.env.DATABASE_URL, {
+//         dialect: 'postgres',
+//         logging: false,
+//         dialectOptions: {
+//             ssl: {
+//                 require: true,
+//                 rejectUnauthorized: false
+//             }
+//         }
+//     });
+// } else {
+//     // Si no está, usa los datos locales que ya tenían configurados
+//     sequelize = new Sequelize(
+//         process.env.DB_NAME || 'concesionariodb',
+//         process.env.DB_USER || 'postgres',
+//         process.env.DB_PASSWORD || 'admin123',
+//         {
+//             host: process.env.DB_HOST || 'localhost',
+//             dialect: 'postgres',
+//             logging: false,
+//         }
+//     );
+// }
 
 // Cargar modelos inyectando la instancia de sequelize
 const Vehiculo = require('../src/models/vehiculo.model')(sequelize);

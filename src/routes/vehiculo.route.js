@@ -101,11 +101,11 @@ router.get('/', authCtrl.verifyToken, vehiculoCtrl.getVehiculos);
  *       401:
  *         description: No autorizado.
  *       403:
- *         description: Prohibido (solo vendedores).
+ *         description: Prohibido (solo admins).
  *       500:
  *         description: Error en el servidor al registrar el vehículo.
  */
-router.post('/', authCtrl.verifyToken, authCtrl.verifyRole("vendedor"), validacionCreacionVehiculo, registrarAccion('Crear vehículo'), vehiculoCtrl.createVehiculo);
+router.post('/', authCtrl.verifyToken, authCtrl.verifyRole("admin"), validacionCreacionVehiculo, registrarAccion('Crear vehículo'), vehiculoCtrl.createVehiculo);
 
 /**
  * @swagger
@@ -199,13 +199,13 @@ router.get('/:id', authCtrl.verifyToken, vehiculoCtrl.getVehiculoById);
  *       401:
  *         description: No autorizado.
  *       403:
- *         description: Prohibido (solo vendedores).
+ *         description: Prohibido (solo vendedores y vendedores).
  *       404:
  *         description: Vehículo no encontrado.
  *       500:
  *         description: Error al actualizar el vehículo.
  */
-router.put('/:id', authCtrl.verifyToken, authCtrl.verifyRole("vendedor"), registrarAccion('Modificar vehículo'), vehiculoCtrl.updateVehiculo);
+router.put('/:id', authCtrl.verifyToken, authCtrl.verifyRole("vendedor", "admin"), registrarAccion('Modificar vehículo'), vehiculoCtrl.updateVehiculo);
 
 /**
  * @swagger
@@ -235,6 +235,6 @@ router.put('/:id', authCtrl.verifyToken, authCtrl.verifyRole("vendedor"), regist
  *       500:
  *         description: Error interno al intentar eliminar el vehículo.
  */
-router.delete('/:id', authCtrl.verifyToken, authCtrl.verifyRole("vendedor"), registrarAccion('Eliminar vehículo'), vehiculoCtrl.deleteVehiculo);
+router.delete('/:id', authCtrl.verifyToken, authCtrl.verifyRole("vendedor", "admin"), registrarAccion('Eliminar vehículo'), vehiculoCtrl.deleteVehiculo);
 
 module.exports = router;
