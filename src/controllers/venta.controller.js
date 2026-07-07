@@ -1,4 +1,4 @@
-const { Venta, Usuario, Vehiculo, sequelize } = require('../../config/database');
+const { Venta, Usuario, Vehiculo, Reserva, sequelize } = require('../../config/database');
 const ventaCtrl = {};
 
 // Obtener todos los ventas (GET) 
@@ -102,6 +102,20 @@ ventaCtrl.createVenta = async (req, res) => {
         const precioOriginal = vehiculo.precio;
         const descuento = vehiculo.descuento;
         const precioFinal = Number((precioOriginal * (1 - descuento / 100)).toFixed(2));
+
+        const reservaActiva = await Reserva.findOne({
+            where: {
+                vehiculoId,
+                estado: { [Op.in]: ['pendiente', 'confirmada'] }
+            }
+            });
+
+            if (reservaActiva) {
+            return res.status(400).json({
+                status: '0',
+                msg: `No se puede vender el vehículo: tiene una reserva ${reservaActiva.estado} en curso (Reserva #${reservaActiva.id}).`
+            });
+            }
 
         // Validar si el auto ya está vendido
         if (vehiculo.estado === 'vendido') {

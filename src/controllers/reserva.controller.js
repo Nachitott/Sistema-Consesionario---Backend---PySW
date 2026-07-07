@@ -106,6 +106,22 @@ reservaCtrl.createReserva = async (req, res) => {
     }
 };
 
+reservaCtrl.getReservasPorCliente = async (req, res) => {
+    try {
+        const { clienteId } = req.params;
+        const reservas = await Reserva.findAll({
+            where: { clienteId },
+            include: [
+                { model: Vehiculo, as: 'vehiculo', attributes: ['id', 'marca', 'modelo', 'anio', 'precio', 'estado'] }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+        res.json(reservas);
+    } catch (error) {
+        res.status(500).json({ status: '0', msg: 'Error al obtener las reservas del cliente.', error: error.message });
+    }
+};
+
 // Endpoint para que los vendedores aprueben o rechacen la reserva
 reservaCtrl.procesarReserva = async (req, res) => {
     const t = await sequelize.transaction();

@@ -157,5 +157,5 @@ router.post('/', authCtrl.verifyToken, validacionCreacionReserva, registrarAccio
  *         description: Error interno al procesar la reserva (transacción revertida).
  */
 router.put('/:id/procesar', authCtrl.verifyToken, authCtrl.verifyRole("vendedor", "admin"), registrarAccion('Procesar reserva'), reservaCtrl.procesarReserva);
-
+router.get('/cliente/:clienteId', authCtrl.verifyToken, reservaCtrl.getReservasPorCliente);
 module.exports = router;
