@@ -23,3 +23,5 @@ module.exports = (sequelize) => {
 
     return Vehiculo
 }
+
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiZW1haWwiOiJlc3Bpbm9pZ25hY2lvMkBnbWFpbC5jb20iLCJyb2wiOiJhZG1pbiIsImlhdCI6MTc4MzM5Nzc5NCwiZXhwIjoxNzgzNDEyMTk0fQ.4TSzJjrNpeoc6o-1j0Ofs-1fndtQj4R8PB94JDXMnbo
