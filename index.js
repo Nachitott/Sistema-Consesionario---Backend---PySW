@@ -38,6 +38,7 @@ app.use('/api/reporte', require('./src/routes/reporte.route'));
 app.use('/api/venta', require('./src/routes/venta.route'));
 app.use('/api/turno', require('./src/routes/turno.route'));
 app.use('/api/email', require('./src/routes/email.route'));
+app.use("/api/youtube", require('./src/routes/youtube.route.js'));
 
 // Configuración de Swagger
 const swaggerUi = require('swagger-ui-express');
