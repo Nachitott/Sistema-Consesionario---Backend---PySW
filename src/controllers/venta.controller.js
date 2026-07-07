@@ -1,6 +1,4 @@
-const { Venta } = require('../../config/database');
-const { Usuario } = require('../../config/database');
-const { Vehiculo } = require('../../config/database');
+const { Venta, Usuario, Vehiculo, sequelize } = require('../../config/database');
 const ventaCtrl = {};
 
 // Obtener todos los ventas (GET) 
@@ -70,30 +68,34 @@ ventaCtrl.getVenta = async (req, res) => {
 
 // agrega una venta (POST)
 ventaCtrl.createVenta = async (req, res) => {
+    const t = await sequelize.transaction();
     try {
-
-        const vehiculo = await Vehiculo.findByPk(req.body.vehiculoId);
+        const vehiculo = await Vehiculo.findByPk(req.body.vehiculoId, { transaction: t });
         if (!vehiculo || !vehiculo.visible) {
+            await t.rollback();
             return res.status(404).json({
                 status: '0', msg: 'Vehículo no encontrado.'
             });
         }
 
-        const cliente = await Usuario.findByPk(req.body.clienteId);
+        const cliente = await Usuario.findByPk(req.body.clienteId, { transaction: t });
         if (!cliente || cliente.rol !== "cliente") {
+            await t.rollback();
             return res.status(400).json({
                 status: '0', msg: "El cliente no existe."
             });
         }
 
-        const vendedor = await Usuario.findByPk(req.body.vendedorId);
+        const vendedor = await Usuario.findByPk(req.body.vendedorId, { transaction: t });
         if (!vendedor || vendedor.rol !== "vendedor") {
+            await t.rollback();
             return res.status(400).json({
                 status: '0', msg: "El vendedor no existe."
             });
         }
 
         if (req.user.rol !== "admin" && req.user.id !== vendedor.id) {
+            await t.rollback();
             return res.status(403).json({ status: '0', msg: 'No se pudo realizar la operacion.' });
         }
 
@@ -103,14 +105,15 @@ ventaCtrl.createVenta = async (req, res) => {
 
         // Validar si el auto ya está vendido
         if (vehiculo.estado === 'vendido') {
+            await t.rollback();
             return res.status(400).json({ status: '0', msg: 'El vehículo ya ha sido vendido.' });
         }
 
         // Validar que el vehículo esté disponible
         if (vehiculo.estado !== 'disponible') {
+            await t.rollback();
             return res.status(400).json({ status: '0', msg: 'El vehículo no está disponible para reserva (puede estar reservado o inactivo).' });
         }
-
 
         // Sequelize usa .create() para instanciar y guardar en un solo paso
         await Venta.create({
@@ -125,16 +128,21 @@ ventaCtrl.createVenta = async (req, res) => {
             precioOriginal,
             descuento,
             precioFinal
-        });
+        }, { transaction: t });
+
         await vehiculo.update({
             estado: 'vendido',
             visible: false
-        });
+        }, { transaction: t });
+
+        await t.commit();
+
         res.json({ status: '1', msg: 'Venta guardada.' });
     } catch (error) {
+        await t.rollback();
         console.log("error");
         console.log(error);
-        res.status(400).json({ status: '0', msg: 'Error procesando operacion.' });
+        res.status(500).json({ status: '0', msg: 'Error procesando operacion.', error: error.message });
     }
 };
 
