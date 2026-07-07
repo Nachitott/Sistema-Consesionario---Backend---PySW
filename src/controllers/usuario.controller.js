@@ -223,7 +223,7 @@ usuarioCtrl.loginGoogle = async (req, res) => {
 // agrega un usuario (POST)
 usuarioCtrl.createUsuario = async (req, res) => {
     try {
-        const { username, nombre, apellido, dni, email, telefono, direccion, ciudad, provincia, fechaNacimiento, password } = req.body;
+        const { username, nombre, apellido, dni, email, telefono, direccion, ciudad, provincia, fechaNacimiento, password, rol, observaciones } = req.body;
 
         const usuarioEmail = await Usuario.findOne({
             where: {
@@ -244,7 +244,7 @@ usuarioCtrl.createUsuario = async (req, res) => {
         }
 
         const passwordHash = await bcrypt.hash(password, 10); // Hash de la contraseña
-        
+
         await Usuario.create({
             username,
             nombre,
@@ -257,8 +257,9 @@ usuarioCtrl.createUsuario = async (req, res) => {
             provincia,
             fechaNacimiento,
             password: passwordHash,
-            rol: 'cliente', // Forzar rol a 'cliente' para evitar escalamiento de privilegios
-            fechaIngreso: new Date()
+            rol,// Forzar rol a 'cliente' para evitar escalamiento de privilegios
+            fechaIngreso: new Date(),
+            observaciones
         });
 
         res.json({ status: '1', msg: 'Usuario guardado.' });

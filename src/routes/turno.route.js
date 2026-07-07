@@ -11,7 +11,7 @@ const { registrarAccion } = require('../../middlewares/auditMiddlewares');
  *   description: APIs para la gestión de turnos o citas (solicitar, aprobar, cancelar, reprogramar) en el concesionario.
  */
 
-/**
+/** 
  * @swagger
  * /api/turno:
  *   get:
