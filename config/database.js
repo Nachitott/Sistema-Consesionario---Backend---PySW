@@ -1,9 +1,33 @@
 const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize('concesionariodb', 'postgres', 'admin123', {
-    host: 'localhost',
-    dialect: 'postgres',
-    logging: false,
-});
+require('dotenv').config(); // Aseguramos que lea el archivo .env
+
+let sequelize;
+
+// Si existe la URL de Supabase, conecta a internet con SSL
+if (process.env.DATABASE_URL) {
+    sequelize = new Sequelize(process.env.DATABASE_URL, {
+        dialect: 'postgres',
+        logging: false,
+        dialectOptions: {
+            ssl: {
+                require: true,
+                rejectUnauthorized: false
+            }
+        }
+    });
+} else {
+    // Si no está, usa los datos locales que ya tenían configurados
+    sequelize = new Sequelize(
+        process.env.DB_NAME || 'concesionariodb',
+        process.env.DB_USER || 'postgres',
+        process.env.DB_PASSWORD || 'admin123',
+        {
+            host: process.env.DB_HOST || 'localhost',
+            dialect: 'postgres',
+            logging: false,
+        }
+    );
+}
 
 // Cargar modelos inyectando la instancia de sequelize
 const Vehiculo = require('../src/models/vehiculo.model')(sequelize);
@@ -31,25 +55,11 @@ Vehiculo.hasMany(Turno, { foreignKey: 'vehiculoId', as: 'turnos' });
 Turno.belongsTo(Vehiculo, { foreignKey: 'vehiculoId', as: 'vehiculo' });
 
 // Un Usuario tiene muchas Ventas, una Venta pertenece a un Usuario
-Venta.belongsTo(Usuario, {
-    as: 'cliente',
-    foreignKey: 'clienteId'
-});
+Venta.belongsTo(Usuario, { as: 'cliente', foreignKey: 'clienteId' });
+Usuario.hasMany(Venta, { as: 'compras', foreignKey: 'clienteId' });
 
-Usuario.hasMany(Venta, {
-    as: 'compras',
-    foreignKey: 'clienteId'
-});
-
-Venta.belongsTo(Usuario, {
-    as: 'vendedor',
-    foreignKey: 'vendedorId'
-});
-
-Usuario.hasMany(Venta, {
-    as: 'ventasRealizadas',
-    foreignKey: 'vendedorId'
-});
+Venta.belongsTo(Usuario, { as: 'vendedor', foreignKey: 'vendedorId' });
+Usuario.hasMany(Venta, { as: 'ventasRealizadas', foreignKey: 'vendedorId' });
 
 // Un Vehículo pertenece a una Venta, una Venta tiene un Vehículo
 Vehiculo.hasMany(Venta, { foreignKey: 'vehiculoId', as: 'ventas' });
