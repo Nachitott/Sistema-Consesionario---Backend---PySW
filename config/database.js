@@ -10,6 +10,8 @@ const Vehiculo = require('../src/models/vehiculo.model')(sequelize);
 const Usuario = require('../src/models/usuario.model')(sequelize);
 const Venta = require('../src/models/venta.model')(sequelize);
 const Reserva = require('../src/models/reserva.model')(sequelize);
+const Turno = require('../src/models/turno.model')(sequelize);
+const Auditoria = require('../src/models/auditora.model')(sequelize);
 
 // Definición de Relaciones / Asociaciones
 
@@ -20,6 +22,13 @@ Reserva.belongsTo(Usuario, { foreignKey: 'clienteId', as: 'cliente' });
 // Un Vehículo puede tener muchas Reservas (historial de reservas), una Reserva pertenece a un Vehículo
 Vehiculo.hasMany(Reserva, { foreignKey: 'vehiculoId', as: 'reservas' });
 Reserva.belongsTo(Vehiculo, { foreignKey: 'vehiculoId', as: 'vehiculo' });
+
+// Relaciones para Turnos (Historial del Cliente)
+Usuario.hasMany(Turno, { foreignKey: 'clienteId', as: 'turnos' });
+Turno.belongsTo(Usuario, { foreignKey: 'clienteId', as: 'cliente' });
+
+Vehiculo.hasMany(Turno, { foreignKey: 'vehiculoId', as: 'turnos' });
+Turno.belongsTo(Vehiculo, { foreignKey: 'vehiculoId', as: 'vehiculo' });
 
 // Un Usuario tiene muchas Ventas, una Venta pertenece a un Usuario
 Venta.belongsTo(Usuario, {
@@ -55,5 +64,7 @@ module.exports = {
     Vehiculo,
     Usuario,
     Venta,
-    Reserva
+    Reserva,
+    Turno,
+    Auditoria
 };

@@ -98,17 +98,17 @@ usuarioCtrl.loginUsuario = async (req, res) => {
             }
         });
         if (!usuario) {
-            return res.json({
+            return res.status(401).json({
                 status: 0,
-                msg: "El email ingresado no corresponde a ningún usuario registrado"
-            })
+                msg: "Email o contraseña incorrectos."
+            });
         }
 
         if (!usuario.password || usuario.password === "") {
-            return res.json({
+            return res.status(400).json({
                 status: 0,
-                msg: "El usuario se registro mediante Google"
-            })
+                msg: "Este usuario se registró mediante Google. Inicie sesión con Google."
+            });
         }
 
         const coincide = await bcrypt.compare(
@@ -116,10 +116,10 @@ usuarioCtrl.loginUsuario = async (req, res) => {
             usuario.password
         );
         if (!coincide) {
-            return res.json({
+            return res.status(401).json({
                 status: 0,
-                msg: "La contraseña ingresada es incorrecta"
-            })
+                msg: "Email o contraseña incorrectos."
+            });
         }
 
         const untoken = jwt.sign(
@@ -145,13 +145,13 @@ usuarioCtrl.loginUsuario = async (req, res) => {
                 email: usuario.email,
                 rol: usuario.rol
             } //retorno información útil para el frontend
-        })
+        });
 
     } catch (error) {
-        res.json({
+        res.status(500).json({
             status: 0,
-            msg: 'error'
-        })
+            msg: 'Error interno en el inicio de sesión.'
+        });
     }
 }
 
@@ -223,9 +223,11 @@ usuarioCtrl.loginGoogle = async (req, res) => {
 // agrega un usuario (POST)
 usuarioCtrl.createUsuario = async (req, res) => {
     try {
+        const { username, nombre, apellido, dni, email, telefono, direccion, ciudad, provincia, fechaNacimiento, password } = req.body;
+
         const usuarioEmail = await Usuario.findOne({
             where: {
-                email: req.body.email,
+                email: email,
             }
         });
         if (usuarioEmail) {
@@ -234,17 +236,31 @@ usuarioCtrl.createUsuario = async (req, res) => {
 
         const usuarioUsername = await Usuario.findOne({
             where: {
-                username: req.body.username,
+                username: username,
             }
         });
         if (usuarioUsername) {
             return res.status(400).json({ status: '0', msg: 'El nombre de usuario ya está registrado.' });
         }
 
-        // Sequelize usa .create() para instanciar y guardar en un solo paso
-        const passwordHash = await bcrypt.hash(req.body.password, 10); // Hash de la contraseña
-        await Usuario.create({ ...req.body, password: passwordHash });
-        console.log(req.body);
+        const passwordHash = await bcrypt.hash(password, 10); // Hash de la contraseña
+        
+        await Usuario.create({
+            username,
+            nombre,
+            apellido,
+            dni,
+            email,
+            telefono,
+            direccion,
+            ciudad,
+            provincia,
+            fechaNacimiento,
+            password: passwordHash,
+            rol: 'cliente', // Forzar rol a 'cliente' para evitar escalamiento de privilegios
+            fechaIngreso: new Date()
+        });
+
         res.json({ status: '1', msg: 'Usuario guardado.' });
     } catch (error) {
         console.error(error);

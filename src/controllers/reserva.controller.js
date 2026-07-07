@@ -1,4 +1,4 @@
-const { Reserva, Vehiculo, Usuario } = require('../../config/database');
+const { Reserva, Vehiculo, Usuario, sequelize } = require('../../config/database');
 const { Op } = require('sequelize');
 
 const reservaCtrl = {};
@@ -108,41 +108,47 @@ reservaCtrl.createReserva = async (req, res) => {
 
 // Endpoint para que los vendedores aprueben o rechacen la reserva
 reservaCtrl.procesarReserva = async (req, res) => {
+    const t = await sequelize.transaction();
     try {
         const { id } = req.params;
         const { accion } = req.body; // Puede ser 'aprobar' o 'rechazar'
 
         if (!accion || !['aprobar', 'rechazar'].includes(accion)) {
+            await t.rollback();
             return res.status(400).json({ status: '0', msg: 'Acción no válida. Debe ser "aprobar" o "rechazar".' });
         }
 
         const reserva = await Reserva.findByPk(id, {
-            include: [{ model: Vehiculo, as: 'vehiculo' }]
+            include: [{ model: Vehiculo, as: 'vehiculo' }],
+            transaction: t
         });
 
         if (!reserva) {
+            await t.rollback();
             return res.status(404).json({ status: '0', msg: 'Reserva no encontrada.' });
         }
 
         // Impedir procesar reservas canceladas o finalizadas
         if (reserva.estado === 'finalizada' || reserva.estado === 'cancelada') {
+            await t.rollback();
             return res.status(400).json({ status: '0', msg: `No se puede modificar una reserva que ya está "${reserva.estado}".` });
         }
 
         if (accion === 'aprobar') {
             // Verificar de nuevo si el auto no se vendió entretanto
             if (reserva.vehiculo.estado === 'vendido') {
+                await t.rollback();
                 return res.status(400).json({ status: '0', msg: 'No se puede aprobar la reserva porque el vehículo ya está vendido.' });
             }
 
             // Cambiar estado de la reserva a confirmada
             reserva.estado = 'confirmada';
-            await reserva.save();
+            await reserva.save({ transaction: t });
 
             // Cambiar el estado del auto a "reservado"
             const vehiculo = reserva.vehiculo;
             vehiculo.estado = 'reservado';
-            await vehiculo.save();
+            await vehiculo.save({ transaction: t });
 
             // Cancelar automáticamente cualquier otra reserva pendiente de este vehículo
             await Reserva.update(
@@ -152,9 +158,12 @@ reservaCtrl.procesarReserva = async (req, res) => {
                         vehiculoId: vehiculo.id,
                         id: { [Op.ne]: reserva.id },
                         estado: 'pendiente'
-                    }
+                    },
+                    transaction: t
                 }
             );
+
+            await t.commit();
 
             return res.json({
                 status: '1',
@@ -165,14 +174,16 @@ reservaCtrl.procesarReserva = async (req, res) => {
         } else if (accion === 'rechazar') {
             const estadoAnterior = reserva.estado;
             reserva.estado = 'cancelada';
-            await reserva.save();
+            await reserva.save({ transaction: t });
 
             // Si estaba confirmada y el vehículo figuraba reservado por esta reserva, vuelve a estar disponible
             const vehiculo = reserva.vehiculo;
             if (estadoAnterior === 'confirmada' && vehiculo.estado === 'reservado') {
                 vehiculo.estado = 'disponible';
-                await vehiculo.save();
+                await vehiculo.save({ transaction: t });
             }
+
+            await t.commit();
 
             return res.json({
                 status: '1',
@@ -181,6 +192,7 @@ reservaCtrl.procesarReserva = async (req, res) => {
             });
         }
     } catch (error) {
+        await t.rollback();
         res.status(500).json({ status: '0', msg: 'Error al procesar la reserva.', error: error.message });
     }
 };
