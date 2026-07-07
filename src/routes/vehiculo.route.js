@@ -17,10 +17,8 @@ const { validacionCreacionVehiculo } = require('../../middlewares/validators/veh
  * /api/vehiculo:
  *   get:
  *     summary: Obtener todos los vehículos
- *     description: Retorna la lista de todos los vehículos registrados en el catálogo. Requiere token de autenticación.
+ *     description: Retorna la lista de todos los vehículos registrados en el catálogo.
  *     tags: [Vehículos]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Catálogo de vehículos obtenido correctamente.
@@ -29,7 +27,7 @@ const { validacionCreacionVehiculo } = require('../../middlewares/validators/veh
  *       500:
  *         description: Error al obtener los vehículos.
  */
-router.get('/', authCtrl.verifyToken, vehiculoCtrl.getVehiculos);
+router.get('/', vehiculoCtrl.getVehiculos);
 
 /**
  * @swagger
