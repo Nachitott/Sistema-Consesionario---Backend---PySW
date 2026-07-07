@@ -9,7 +9,7 @@ app.use(express.json());
 
 const allowedOrigins = [
     'http://localhost:4200',
-    'https://proyfrontendgrupo07-sn13.vercel.app'
+    'https://proyfrontendgrupo07.vercel.app'
 ];
 
 app.use(cors({
