@@ -36,6 +36,7 @@ const Venta = require('../src/models/venta.model')(sequelize);
 const Reserva = require('../src/models/reserva.model')(sequelize);
 const Turno = require('../src/models/turno.model')(sequelize);
 const Auditoria = require('../src/models/auditora.model')(sequelize);
+const Email = require('../src/models/email.model')(sequelize);
 
 // Definición de Relaciones / Asociaciones
 
@@ -76,5 +77,6 @@ module.exports = {
     Venta,
     Reserva,
     Turno,
-    Auditoria
+    Auditoria,
+    Email
 };
