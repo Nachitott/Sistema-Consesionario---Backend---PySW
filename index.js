@@ -9,7 +9,7 @@ app.use(express.json());
 
 const allowedOrigins = [
     'http://localhost:4200',
-    'https://proyfrontendgrupo07.vercel.app'
+    'https://proyfrontendgrupo07.vercel.app',
 ];
 
 app.use(cors({
@@ -18,8 +18,9 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         // Permitir si coincide con los orígenes permitidos o con previsualizaciones de Vercel
-        const isAllowed = allowedOrigins.includes(origin) || 
-                          /^https:\/\/proyfrontendgrupo07-.*\.vercel\.app$/.test(origin);
+        const isAllowed =
+            allowedOrigins.includes(origin) ||
+            /^https:\/\/proyfrontendgrupo07.*\.vercel\.app$/.test(origin);
         
         if (isAllowed) {
             callback(null, true);
