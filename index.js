@@ -6,7 +6,29 @@ const { sanitizarXSS } = require('./middlewares/xssMiddleware');
 var app = express();
 
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:4200' }));
+
+const allowedOrigins = [
+    'http://localhost:4200',
+    'https://proyfrontendgrupo07-sn13.vercel.app'
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Permitir peticiones sin origen (como Postman, curl o logs del servidor)
+        if (!origin) return callback(null, true);
+        
+        // Permitir si coincide con los orígenes permitidos o con previsualizaciones de Vercel
+        const isAllowed = allowedOrigins.includes(origin) || 
+                          /^https:\/\/proyfrontendgrupo07-.*\.vercel\.app$/.test(origin);
+        
+        if (isAllowed) {
+            callback(null, true);
+        } else {
+            callback(new Error('No permitido por la política de CORS de la API'));
+        }
+    },
+    credentials: true
+}));
 app.use(sanitizarXSS);
 
 app.use('/api/vehiculo', require('./src/routes/vehiculo.route'));
@@ -33,6 +55,10 @@ const swaggerOptions = {
             {
                 url: 'http://localhost:3000',
                 description: 'Servidor Local de Desarrollo',
+            },
+            {
+                url: 'https://sistema-consesionario-backend-pysw.onrender.com',
+                description: 'Servidor de Producción (Render)',
             },
         ],
         components: {
