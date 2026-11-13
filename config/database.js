@@ -16,16 +16,26 @@ if (process.env.DATABASE_URL) {
         }
     });
 } else {
-    // Si no está, usa los datos locales que ya tenían configurados
+    // Conexión a la base en Docker. Si DB_READ_HOST está definido,
+    // las escrituras van al primario (DB_HOST) y las lecturas a la réplica.
+    const opciones = {
+        dialect: 'postgres',
+        port: process.env.DB_PORT || 5432,
+        logging: false,
+    };
+    if (process.env.DB_READ_HOST) {
+        opciones.replication = {
+            write: { host: process.env.DB_HOST || 'localhost' },
+            read: [{ host: process.env.DB_READ_HOST }],
+        };
+    } else {
+        opciones.host = process.env.DB_HOST || 'localhost';
+    }
     sequelize = new Sequelize(
         process.env.DB_NAME || 'concesionariodb',
         process.env.DB_USER || 'postgres',
         process.env.DB_PASSWORD || 'admin123',
-        {
-            host: process.env.DB_HOST || 'localhost',
-            dialect: 'postgres',
-            logging: false,
-        }
+        opciones
     );
 }
 
