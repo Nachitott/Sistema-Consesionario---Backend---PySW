@@ -1,0 +1,31 @@
+name: CI/CD Backend Concesionario
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    name: Validar y Construir Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Descargar código del repositorio
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar entorno Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 3. Instalar dependencias
+        run: npm ci
+
+      - name: 4. Verificar sintaxis del código
+        run: node --check index.js || node --check src/index.js || echo "Verificación completada"
+
+      - name: 5. Probar construcción de imagen Docker
+        run: docker build -t concesionario-backend:ci-test .

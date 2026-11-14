@@ -9,6 +9,7 @@ app.use(express.json());
 
 const allowedOrigins = [
     'http://localhost:4200',
+    'http://localhost:8080',
     'https://proyfrontendgrupo07.vercel.app',
 ];
 
